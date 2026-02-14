@@ -1,0 +1,66 @@
+# =====================================================
+# Makefile for CUDA Logistic Regression Project
+# =====================================================
+
+# Compiler definitions
+CXX      := g++
+NVCC     := nvcc
+
+# Compiler flags
+CXXFLAGS := -O3 -std=c++17
+NVFLAGS  := -O3 -arch=sm_86
+
+# Executable names
+CPU_EXEC   := cpu_lr
+CUDA_EXEC  := cuda_lr
+
+# Source files
+CPU_SRC    := logistic_regression_cpu.cpp
+CUDA_SRC   := logistic_regression_cuda.cu
+
+# =====================================================
+# Default Target
+# =====================================================
+all: $(CPU_EXEC) $(CUDA_EXEC)
+
+# =====================================================
+# CPU Build
+# =====================================================
+$(CPU_EXEC): $(CPU_SRC)
+	$(CXX) $(CXXFLAGS) $< -o $@
+
+# =====================================================
+# CUDA Build
+# =====================================================
+$(CUDA_EXEC): $(CUDA_SRC)
+	$(NVCC) $(NVFLAGS) $< -o $@
+
+# =====================================================
+# Debug Build
+# =====================================================
+debug:
+	$(CXX) -g -std=c++17 $(CPU_SRC) -o $(CPU_EXEC)
+	$(NVCC) -g -G $(CUDA_SRC) -o $(CUDA_EXEC)
+
+# =====================================================
+# Run Targets
+# =====================================================
+run_cpu: $(CPU_EXEC)
+	./$(CPU_EXEC)
+
+run_cuda: $(CUDA_EXEC)
+	./$(CUDA_EXEC)
+
+# =====================================================
+# Clean
+# =====================================================
+clean:
+	rm -f $(CPU_EXEC) $(CUDA_EXEC)
+
+# =====================================================
+# Profiling (optional)
+# =====================================================
+profile: $(CUDA_EXEC)
+	nvprof ./$(CUDA_EXEC)
+
+.PHONY: all clean debug run_cpu run_cuda profile
